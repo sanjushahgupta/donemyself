@@ -1,28 +1,94 @@
 package main
 
 import (
-	"firstattemp/Handle"
-	"firstattemp/Struct"
+	"database/sql"
+	"encoding/json"
+
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
 )
 
-// // Lets start with the main function,
-// firstly we initialize the router variable as r
-// and the GorillaMux is used by calling mux.NewRouter().
-// Then we add all the HandleFunc() methods
-// which a basic CRUD application will have.
-// Here, I have used some named-parameters {name},
-// so that we can access the contact details using the name of the person.
+type Contact struct {
+	id   int    `json:"id"`
+	Name string `json:"name"`
+
+	Locality string `json:"Locality"`
+}
+
+const (
+	host     = "localhost"
+	port     = 5432
+	user     = "myuser1"
+	password = "mypass1"
+	dbname   = "firstattemp"
+)
+
+func Openconnection() *sql.DB {
+	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	// open database
+
+	db, _ := sql.Open("postgres", psqlconn)
+	db.Ping()
+	return db
+}
+func Create(w http.ResponseWriter, r *http.Request) {
+	db := Openconnection()
+	var data Contact
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("querytest")
+	defer db.Close()
+	sqlStatement := `
+		INSERT INTO "newtable"("Name","Locality")
+		VALUES ($1,$2)`
+	_, err = db.Exec(sqlStatement, data.Name, data.Locality)
+
+	if err != nil {
+		panic(err)
+	}
+
+}
+
+func List(w http.ResponseWriter, r *http.Request) {
+
+	db := Openconnection()
+	var newtable Contact
+	var Contactsarr []Contact
+	defer db.Close()
+
+	rows, err := db.Query(`SELECT "Name", "Locality" FROM "newtable"`)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&newtable.Name, &newtable.Locality)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			Contactsarr = append(Contactsarr, newtable)
+		}
+
+	}
+	w.Header().Set("Content-Type", "pkglication/json")
+	w.Header().Set("Access-Control-Allow", "*")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(Contactsarr)
+
+}
+
 func main() {
-	Handle.Persons = append(Handle.Persons, Struct.Contact{Name: "sanjuss", StreetNo: 67, Locality: "Kup"})
-	Handle.Persons = append(Handle.Persons, Struct.Contact{Name: "sushil", StreetNo: 98, Locality: "Baneswor"})
+
 	r := mux.NewRouter()
 
-	r.HandleFunc("/addcontact", Handle.Create).Methods("POST")
-	r.HandleFunc("/readcontact", Handle.Read).Methods("GET")
-	r.HandleFunc("/updatecontact/{name}", Handle.Update).Methods("PUT")
-	r.HandleFunc("/deletecontact/{name}", Handle.Delete).Methods("DELETE")
-	http.ListenAndServe(":8001", r)
+	r.HandleFunc("/addcontact", Create).Methods("POST")
+	r.HandleFunc("/readcontact", List).Methods("GET")
+	http.ListenAndServe(":8099", r)
+
 }
