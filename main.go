@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"io/ioutil"
 
 	"fmt"
 	"net/http"
@@ -83,12 +84,76 @@ func List(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func Listbyname(w http.ResponseWriter, r *http.Request) {
+	db := Openconnection()
+	params := mux.Vars(r)
+	defer db.Close()
+	rows, err := db.Query(`SELECT * FROM "newtable" Where "Name"=$1`, params["Name"])
+	defer rows.Close()
+	var contactl Contact
+	for rows.Next() {
+		err = rows.Scan(&contactl.Locality, &contactl.Name)
+		if err != nil {
+			fmt.Println(err)
+		}
+		json.NewEncoder(w).Encode(contactl)
+
+	}
+}
+
+func Update(w http.ResponseWriter, r *http.Request) {
+
+	db := Openconnection()
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+
+	defer db.Close()
+	updateStmt, _ := db.Prepare(`update "newtable" set "Locality"=$1 where "Name"=$2`)
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Println(err)
+	}
+	var keyVal map[string]string
+	json.Unmarshal(body, &keyVal)
+	newLocality := keyVal["Locality"]
+	_, err = updateStmt.Exec(newLocality, params["Name"])
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Fprintf(w, "Post with Name = %s was updated", params["Name"])
+
+	fmt.Println("8TH")
+
+}
+
+func Delete(w http.ResponseWriter, r *http.Request) {
+	db := Openconnection()
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+
+	stmt, _ := db.Prepare(`delete from "newtable" where "Name"=$1`)
+	fmt.Println("err1")
+	_, err := stmt.Exec(params["Name"])
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("err2")
+	fmt.Fprintf(w, "Post with Name = %s was deleted", params["Name"])
+
+}
+
 func main() {
 
 	r := mux.NewRouter()
 
 	r.HandleFunc("/addcontact", Create).Methods("POST")
 	r.HandleFunc("/readcontact", List).Methods("GET")
-	http.ListenAndServe(":8099", r)
+	r.HandleFunc("/contactbyname/{Name}", Listbyname).Methods("GET")
+	r.HandleFunc("/updatecontact/{Name}", Update).Methods("PUT")
+	r.HandleFunc("/deletecontact/{Name}", Delete).Methods("DELETE")
+
+	http.ListenAndServe(":8195", r)
 
 }
