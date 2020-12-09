@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"firstattemp/Authentication"
 	"io/ioutil"
 
 	"fmt"
@@ -13,7 +14,6 @@ import (
 )
 
 type Contact struct {
-	id   int    `json:"id"`
 	Name string `json:"name"`
 
 	Locality string `json:"Locality"`
@@ -36,7 +36,7 @@ func Openconnection() *sql.DB {
 	return db
 }
 func Create(w http.ResponseWriter, r *http.Request) {
-	db := Openconnection()
+	db9 := Openconnection()
 	var data Contact
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
@@ -44,11 +44,11 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println("querytest")
-	defer db.Close()
+	defer db9.Close()
 	sqlStatement := `
 		INSERT INTO "newtable"("Name","Locality")
 		VALUES ($1,$2)`
-	_, err = db.Exec(sqlStatement, data.Name, data.Locality)
+	_, err = db9.Exec(sqlStatement, data.Name, data.Locality)
 
 	if err != nil {
 		panic(err)
@@ -58,12 +58,12 @@ func Create(w http.ResponseWriter, r *http.Request) {
 
 func List(w http.ResponseWriter, r *http.Request) {
 
-	db := Openconnection()
+	db2 := Openconnection()
 	var newtable Contact
 	var Contactsarr []Contact
-	defer db.Close()
+	defer db2.Close()
 
-	rows, err := db.Query(`SELECT "Name", "Locality" FROM "newtable"`)
+	rows, err := db2.Query(`SELECT "Name", "Locality" FROM "newtable"`)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -85,10 +85,10 @@ func List(w http.ResponseWriter, r *http.Request) {
 }
 
 func Listbyname(w http.ResponseWriter, r *http.Request) {
-	db := Openconnection()
+	db3 := Openconnection()
 	params := mux.Vars(r)
-	defer db.Close()
-	rows, err := db.Query(`SELECT * FROM "newtable" Where "Name"=$1`, params["Name"])
+	defer db3.Close()
+	rows, err := db3.Query(`SELECT * FROM "newtable" Where "Name"=$1`, params["Name"])
 	defer rows.Close()
 	var contactl Contact
 	for rows.Next() {
@@ -103,12 +103,12 @@ func Listbyname(w http.ResponseWriter, r *http.Request) {
 
 func Update(w http.ResponseWriter, r *http.Request) {
 
-	db := Openconnection()
+	db4 := Openconnection()
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 
-	defer db.Close()
-	updateStmt, _ := db.Prepare(`update "newtable" set "Locality"=$1 where "Name"=$2`)
+	defer db4.Close()
+	updateStmt, _ := db4.Prepare(`update "newtable" set "Locality"=$1 where "Name"=$2`)
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -129,11 +129,11 @@ func Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func Delete(w http.ResponseWriter, r *http.Request) {
-	db := Openconnection()
+	db5 := Openconnection()
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 
-	stmt, _ := db.Prepare(`delete from "newtable" where "Name"=$1`)
+	stmt, _ := db5.Prepare(`delete from "newtable" where "Name"=$1`)
 	fmt.Println("err1")
 	_, err := stmt.Exec(params["Name"])
 	if err != nil {
@@ -153,7 +153,8 @@ func main() {
 	r.HandleFunc("/contactbyname/{Name}", Listbyname).Methods("GET")
 	r.HandleFunc("/updatecontact/{Name}", Update).Methods("PUT")
 	r.HandleFunc("/deletecontact/{Name}", Delete).Methods("DELETE")
+	r.HandleFunc("/register", Authentication.Register).Methods("POST")
 
-	http.ListenAndServe(":8195", r)
+	http.ListenAndServe(":3008", r)
 
 }
