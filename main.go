@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"firstattemp/Authentication"
+	"firstattemp/Login"
 	"io/ioutil"
 
 	"fmt"
@@ -143,18 +144,26 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Post with Name = %s was deleted", params["Name"])
 
 }
-
+func CommonMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, Access-Control-Request-Headers, Access-Control-Request-Method, Connection, Host, Origin, User-Agent, Referer, Cache-Control, X-header")
+		next.ServeHTTP(w, r)
+	})
+}
 func main() {
 
 	r := mux.NewRouter()
-
+	r.Use(CommonMiddleware)
 	r.HandleFunc("/addcontact", Create).Methods("POST")
 	r.HandleFunc("/readcontact", List).Methods("GET")
 	r.HandleFunc("/contactbyname/{Name}", Listbyname).Methods("GET")
 	r.HandleFunc("/updatecontact/{Name}", Update).Methods("PUT")
 	r.HandleFunc("/deletecontact/{Name}", Delete).Methods("DELETE")
 	r.HandleFunc("/register", Authentication.Register).Methods("POST")
+	r.HandleFunc("/login", Login.Login).Methods("POST")
 
-	http.ListenAndServe(":3008", r)
-
+	http.ListenAndServe(":5080", r)
 }
