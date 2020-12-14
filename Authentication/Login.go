@@ -1,4 +1,4 @@
-package Login
+package Authentication
 
 import (
 	"encoding/json"
@@ -30,7 +30,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 func Findone(Email, Password string) map[string]interface{} {
 	db1 := Dbconnect.Openconnection()
 	user := &Model.User{}
-	Sqlstmt := `SELECT *FROM users WHERE email=$1`
+	Sqlstmt := `SELECT *FROM Jobusers WHERE email=$1`
 	_, err := db1.Exec(Sqlstmt, user.Email)
 	if err != nil {
 		var resp = map[string]interface{}{"status": false, "message": "Email Address not found"}
@@ -46,7 +46,7 @@ func Findone(Email, Password string) map[string]interface{} {
 	}
 
 	tk := &Model.Token{
-		UserID: user.Id,
+		UserID: user.ID,
 		Name:   user.Name,
 		Email:  user.Email,
 		StandardClaims: &jwt.StandardClaims{
@@ -61,6 +61,6 @@ func Findone(Email, Password string) map[string]interface{} {
 	}
 	var resp = map[string]interface{}{"status": false, "message": "logged in"}
 	resp["token"] = tokenString
-	resp["user"] = user
+	resp["user"] = tk
 	return resp
 }

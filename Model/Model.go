@@ -2,8 +2,15 @@ package Model
 
 import "github.com/dgrijalva/jwt-go"
 
+type Contact struct {
+	ID    int    `json:"id"`
+	Title string `json:"title"`
+
+	Post string `json:"post"`
+}
+
 type User struct {
-	Id       int    `json:"id"`
+	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
