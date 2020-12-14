@@ -92,13 +92,13 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	}
 	var keyVal map[string]string
 	json.Unmarshal(body, &keyVal)
-	newLocality := keyVal["Post"]
+	newLocality := keyVal["post"]
 	_, err = updateStmt.Exec(newLocality, params["id"])
 
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Fprintf(w, "Post with id = %s was updated", params["id"])
+	// fmt.Fprintf(w, "Post with id = %s was updated", params["id"])
 
 	fmt.Println("8TH")
 

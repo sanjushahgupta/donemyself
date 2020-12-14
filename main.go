@@ -30,5 +30,5 @@ func main() {
 	r.HandleFunc("/deletecontact/{id}", Crud.Delete).Methods("DELETE")
 	r.HandleFunc("/register", Authentication.Register).Methods("POST")
 	r.HandleFunc("/login", Authentication.Login).Methods("POST")
-	http.ListenAndServe(":1700", r)
+	http.ListenAndServe(":1800", r)
 }
