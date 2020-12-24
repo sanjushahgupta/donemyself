@@ -1,8 +1,10 @@
 package Dbconnect
 
 import (
-	"database/sql"
+	"firstattemp/Model"
 	"fmt"
+
+	"github.com/jinzhu/gorm"
 )
 
 const (
@@ -13,11 +15,15 @@ const (
 	dbname   = "firstattemp"
 )
 
-func Openconnection() *sql.DB {
+func Openconnection() *gorm.DB {
 	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 	// open database
 
-	db, _ := sql.Open("postgres", psqlconn)
+	db, err := gorm.Open("postgres", psqlconn)
+	if err != nil {
+		fmt.Println(err)
+	}
 
+	db.AutoMigrate(&Model.User{}, &Model.Jobdetails{}, &Model.Token{})
 	return db
 }

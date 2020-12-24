@@ -26,9 +26,9 @@ func main() {
 	r.HandleFunc("/addcontact", Crud.Create).Methods("POST")
 	r.HandleFunc("/readcontact", Crud.List).Methods("GET")
 	r.HandleFunc("/contactbyid/{id}", Crud.Listbyid).Methods("GET")
-	r.HandleFunc("/updatecontact/{id}", Crud.Update).Methods("PUT")
+	// r.HandleFunc("/updatecontact/{id}", Crud.Update).Methods("PUT")
 	r.HandleFunc("/deletecontact/{id}", Crud.Delete).Methods("DELETE")
 	r.HandleFunc("/register", Authentication.Register).Methods("POST")
 	r.HandleFunc("/login", Authentication.Login).Methods("POST")
-	http.ListenAndServe(":1800", r)
+	http.ListenAndServe(":3160", r)
 }

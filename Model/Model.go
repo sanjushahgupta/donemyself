@@ -1,16 +1,22 @@
 package Model
 
-import "github.com/dgrijalva/jwt-go"
+import (
+	"github.com/dgrijalva/jwt-go"
+	"github.com/jinzhu/gorm"
+)
 
-type Contact struct {
+type Jobdetails struct {
 	ID    int    `json:"id"`
 	Title string `json:"title"`
 
-	Post string `json:"post"`
+	Post       string `json:"post"`
+	Salary     int    `json:"salary"`
+	Experience string `json:"experience"`
 }
 
 type User struct {
-	ID       int    `json:"id"`
+	gorm.Model
+
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -18,7 +24,7 @@ type User struct {
 }
 
 type Token struct {
-	UserID int
+	UserID uint
 	Name   string
 	Email  string
 	*jwt.StandardClaims

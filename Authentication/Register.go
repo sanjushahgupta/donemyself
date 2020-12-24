@@ -27,14 +27,10 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	// Save the user information.
 	user1.Password = string(pass)
-
-	sqlStatement := `INSERT INTO "Jobusers"("id","Name","email","Password","gender")
-		VALUES ($1,$2,$3,$4,$5)`
-	fmt.Println(user1.Name)
-	fmt.Println(user1.Email)
-
-	CreatedUser, err := db1.Exec(sqlStatement, user1.ID, user1.Name, user1.Email, user1.Password, user1.Gender)
-
-	json.NewEncoder(w).Encode(CreatedUser)
+	createdUser := db1.Create(user1)
+	if createdUser != nil {
+		fmt.Println("error is")
+	}
+	json.NewEncoder(w).Encode(createdUser)
 
 }
