@@ -6,6 +6,7 @@ import (
 	"firstattemp/Model"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -16,18 +17,13 @@ type ErrorResponse struct {
 	Err string
 }
 
-type error interface {
-	Error() string
-}
-
 func Login(w http.ResponseWriter, r *http.Request) {
 	Dbconnect.Openconnection()
 	user := &Model.User{}
 	fmt.Println(user)
-	err := json.NewDecoder(r.Body).Decode(user)
+	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		var resp = map[string]interface{}{"status": false, "message": "Invalid request"}
-		json.NewEncoder(w).Encode(resp)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	resp := FindOne(user.Email, user.Password)
@@ -38,6 +34,7 @@ func FindOne(Email, Password string) map[string]interface{} {
 	db1 := Dbconnect.Openconnection()
 	user := &Model.User{}
 	fmt.Println(user)
+
 	err := db1.Where("Email=?", Email).First(user).Error
 	if err != nil {
 		var resp = map[string]interface{}{"status": false, "message": "Email address not found"}
@@ -51,17 +48,18 @@ func FindOne(Email, Password string) map[string]interface{} {
 		var resp = map[string]interface{}{"status": false, "message": "Invalid login credentials. Please try again"}
 		return resp
 	}
-
+	// create token object and add email and standardclaims
 	tk := &Model.Token{
-
 		Name:  user.Name,
 		Email: user.Email,
 		StandardClaims: &jwt.StandardClaims{
 			ExpiresAt: expiresAt,
 		},
 	}
-
+	// create a new claim with HS256 alogorithm and token claim
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
+	key := []byte(os.Getenv("SECRET_KEY"))
+	fmt.Println(key)
 
 	tokenString, error := token.SignedString([]byte("secret"))
 	if error != nil {
@@ -72,4 +70,21 @@ func FindOne(Email, Password string) map[string]interface{} {
 	resp["token"] = tokenString //Store the token in the response
 	resp["user"] = user
 	return resp
+}
+
+func VerifyToken(r *http.Request) {
+
+	reqToken := r.Header.Get("Authorization")
+	key := []byte(os.Getenv("SECRET_KEY"))
+	token, err := jwt.Parse(reqToken, func(t *jwt.Token) (interface{}, error) {
+		return key, nil
+	})
+	if err == nil && token.Valid {
+		fmt.Println("valid token")
+
+	} else {
+		fmt.Println("invalid token")
+
+	}
+
 }

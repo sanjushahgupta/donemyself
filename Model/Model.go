@@ -16,7 +16,7 @@ type Jobdetails struct {
 
 type User struct {
 	gorm.Model
-
+	UserID   int    `json:id`
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -24,8 +24,11 @@ type User struct {
 }
 
 type Token struct {
-	UserID uint
-	Name   string
-	Email  string
+	UserID int    `json:id`
+	Name   string `json:"name"`
+	Email  string `json:"email"`
 	*jwt.StandardClaims
+}
+type Exception struct {
+	Message string `json:"message"`
 }

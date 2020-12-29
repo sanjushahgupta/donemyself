@@ -2,11 +2,12 @@ package main
 
 import (
 	"firstattemp/Authentication"
-	"firstattemp/Crud"
-
+	"firstattemp/Handle"
+	"firstattemp/Middleware"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
@@ -19,16 +20,23 @@ func CommonMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
-func main() {
 
+func main() {
+	err := godotenv.Load()
+	if err != nil {
+
+	}
 	r := mux.NewRouter()
 	r.Use(CommonMiddleware)
-	r.HandleFunc("/addcontact", Crud.Create).Methods("POST")
-	r.HandleFunc("/readcontact", Crud.List).Methods("GET")
-	r.HandleFunc("/contactbyid/{id}", Crud.Listbyid).Methods("GET")
-	// r.HandleFunc("/updatecontact/{id}", Crud.Update).Methods("PUT")
-	r.HandleFunc("/deletecontact/{id}", Crud.Delete).Methods("DELETE")
-	r.HandleFunc("/register", Authentication.Register).Methods("POST")
-	r.HandleFunc("/login", Authentication.Login).Methods("POST")
-	http.ListenAndServe(":3160", r)
+	s := r.PathPrefix("/auth").Subrouter()
+	s.Use(Middleware.JwtVerify)
+	s.HandleFunc("/addjobpost", Handle.Create).Methods("POST")
+	r.HandleFunc("/readjobpost", Handle.List).Methods("GET")
+	r.HandleFunc("/listjobpostbyid/{id}", Handle.Listbyid).Methods("GET")
+	// s.HandleFunc("/updatejobpostbyid/{id}", Crud.Update).Methods("PUT")
+	s.HandleFunc("/deletejobpost/{id}", Handle.Delete).Methods("DELETE")
+	r.HandleFunc("/registeruser", Authentication.Register).Methods("POST")
+	r.HandleFunc("/loginuser", Authentication.Login).Methods("POST")
+	http.ListenAndServe(":8009", r)
+
 }

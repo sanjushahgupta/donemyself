@@ -24,6 +24,6 @@ func Openconnection() *gorm.DB {
 		fmt.Println(err)
 	}
 
-	db.AutoMigrate(&Model.User{}, &Model.Jobdetails{}, &Model.Token{})
+	db.AutoMigrate(&Model.User{}, &Model.Jobdetails{})
 	return db
 }

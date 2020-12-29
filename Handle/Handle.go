@@ -1,4 +1,4 @@
-package Crud
+package Handle
 
 import (
 	"encoding/json"
@@ -11,11 +11,12 @@ import (
 )
 
 func Create(w http.ResponseWriter, r *http.Request) {
+
 	db := Dbconnect.Openconnection()
 	var data Model.Jobdetails
-	err := json.NewDecoder(r.Body).Decode(&data)
-	if err != nil {
-		fmt.Println(err)
+	errs := json.NewDecoder(r.Body).Decode(&data)
+	if errs != nil {
+		fmt.Println(errs)
 		return
 	}
 
@@ -49,20 +50,20 @@ func Listbyid(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// func Update(w http.ResponseWriter, r *http.Request) {
-// 	db := Dbconnect.Openconnection()
-// 	// var data Model.Jobdetails
-// 	var contactarr []Model.Jobdetails
-// 	w.Header().Set("Content-Type", "application/json")
-// 	params := mux.Vars(r)["id"]
-// 	fmt.Println(params)
-// 	defer db.Close()
+/*func Update(w http.ResponseWriter, r *http.Request) {
+	db := Dbconnect.Openconnection()
+	// var data Model.Jobdetails
+	var contactarr []Model.Jobdetails
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)["id"]
+	fmt.Println(params)
+	defer db.Close()
 
-// 	db.Model(&contactarr).Where("id =$1", params).Update()
+	db.Model(&contactarr).Where("id =$1", params).Update()
 
-// 	// Update("post", "studio-producer")
+	// Update("post", "studio-producer")
 
-// }
+}*/
 
 func Delete(w http.ResponseWriter, r *http.Request) {
 	db := Dbconnect.Openconnection()
