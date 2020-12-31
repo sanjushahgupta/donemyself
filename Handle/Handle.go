@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
@@ -19,8 +20,9 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(errs)
 		return
 	}
+	ids := uuid.New()
 
-	contacts := Model.Jobdetails{ID: data.ID, Title: data.Title, Post: data.Post, Salary: data.Salary, Experience: data.Experience}
+	contacts := Model.Jobdetails{ID: ids, Title: data.Title, Post: data.Post, Salary: data.Salary, Experience: data.Experience}
 	db.Create(&contacts)
 
 	fmt.Println("created")
@@ -43,9 +45,9 @@ func List(w http.ResponseWriter, r *http.Request) {
 func Listbyid(w http.ResponseWriter, r *http.Request) {
 	var contactarr []Model.Jobdetails
 	db := Dbconnect.Openconnection()
-	params := mux.Vars(r)["id"]
+	params := mux.Vars(r)["title"]
 	defer db.Close()
-	db.Where("id = $1", params).First(&contactarr)
+	db.Where("title = $1", params).First(&contactarr)
 	json.NewEncoder(w).Encode(contactarr)
 
 }
@@ -70,7 +72,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	var contactarr []Model.Jobdetails
 
 	w.Header().Set("Content-Type", "application/json")
-	params := mux.Vars(r)["id"]
-	db.Where("id = $1", params).Delete(&contactarr)
+	params := mux.Vars(r)["title"]
+	db.Where("title = $1", params).Delete(&contactarr)
 
 }

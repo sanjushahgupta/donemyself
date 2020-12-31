@@ -2,11 +2,11 @@ package Model
 
 import (
 	"github.com/dgrijalva/jwt-go"
-	"github.com/jinzhu/gorm"
+	"github.com/google/uuid"
 )
 
 type Jobdetails struct {
-	ID    int    `json:"id"`
+	ID    uuid.UUID
 	Title string `json:"title"`
 
 	Post       string `json:"post"`
@@ -15,8 +15,7 @@ type Jobdetails struct {
 }
 
 type User struct {
-	gorm.Model
-	UserID   int    `json:id`
+	ID       uuid.UUID
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -24,9 +23,8 @@ type User struct {
 }
 
 type Token struct {
-	UserID int    `json:id`
-	Name   string `json:"name"`
-	Email  string `json:"email"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
 	*jwt.StandardClaims
 }
 type Exception struct {

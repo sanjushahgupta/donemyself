@@ -66,7 +66,7 @@ func FindOne(Email, Password string) map[string]interface{} {
 		fmt.Println(error)
 	}
 
-	var resp = map[string]interface{}{"status": false, "message": "logged in"}
+	var resp = map[string]interface{}{"status": true, "message": "logged in"}
 	resp["token"] = tokenString //Store the token in the response
 	resp["user"] = user
 	return resp
