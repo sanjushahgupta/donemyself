@@ -6,9 +6,8 @@ import (
 )
 
 type Jobdetails struct {
-	ID    uuid.UUID
-	Title string `json:"title"`
-
+	ID         uuid.UUID
+	Title      string `json:"title"`
 	Post       string `json:"post"`
 	Salary     int    `json:"salary"`
 	Experience string `json:"experience"`

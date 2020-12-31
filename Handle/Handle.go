@@ -12,7 +12,6 @@ import (
 )
 
 func Create(w http.ResponseWriter, r *http.Request) {
-
 	db := Dbconnect.Openconnection()
 	var data Model.Jobdetails
 	errs := json.NewDecoder(r.Body).Decode(&data)
@@ -21,10 +20,8 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	ids := uuid.New()
-
 	contacts := Model.Jobdetails{ID: ids, Title: data.Title, Post: data.Post, Salary: data.Salary, Experience: data.Experience}
 	db.Create(&contacts)
-
 	fmt.Println("created")
 	defer db.Close()
 
@@ -32,7 +29,6 @@ func Create(w http.ResponseWriter, r *http.Request) {
 
 func List(w http.ResponseWriter, r *http.Request) {
 	var contactarr []Model.Jobdetails
-
 	db := Dbconnect.Openconnection()
 	db.Find(&contactarr)
 	w.Header().Set("Content-Type", "pkglication/json")
@@ -43,11 +39,11 @@ func List(w http.ResponseWriter, r *http.Request) {
 }
 
 func Listbyid(w http.ResponseWriter, r *http.Request) {
-	var contactarr []Model.Jobdetails
 	db := Dbconnect.Openconnection()
-	params := mux.Vars(r)["title"]
+	var contactarr []Model.Jobdetails
+	params := mux.Vars(r)["id"]
 	defer db.Close()
-	db.Where("title = $1", params).First(&contactarr)
+	db.Where("id = $1", params).First(&contactarr)
 	json.NewEncoder(w).Encode(contactarr)
 
 }
@@ -72,7 +68,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	var contactarr []Model.Jobdetails
 
 	w.Header().Set("Content-Type", "application/json")
-	params := mux.Vars(r)["title"]
-	db.Where("title = $1", params).Delete(&contactarr)
+	params := mux.Vars(r)["id"]
+	db.Where("id = $1", params).Delete(&contactarr)
 
 }
