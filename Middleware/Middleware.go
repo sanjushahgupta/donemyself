@@ -18,10 +18,8 @@ func JwtVerify(next http.Handler) http.Handler {
 		var header = r.Header.Get("x-access-token")
 		json.NewEncoder(w).Encode(r)
 		//Grab the token from the header
-		fmt.Println(header)
+
 		headers := strings.TrimSpace(header)
-		fmt.Println(headers)
-		fmt.Println("hgjh")
 
 		if headers == "" {
 			//Token is missing, returns with error code 403 Unauthorized
