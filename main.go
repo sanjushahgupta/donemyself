@@ -33,7 +33,7 @@ func main() {
 	s.HandleFunc("/addjobpost", Handle.Create).Methods("POST")
 	r.HandleFunc("/readjobpost", Handle.List).Methods("GET")
 	r.HandleFunc("/listjobpostbyid/{id}", Handle.Listbyid).Methods("GET")
-	s.HandleFunc("/updatejobpostbyid/{id}", Handle.Update).Methods("PUT")
+	// s.HandleFunc("/updatejobpostbyid/{id}", Handle.Update).Methods("PUT")
 	s.HandleFunc("/deletejobpost/{id}", Handle.Delete).Methods("DELETE")
 	r.HandleFunc("/registeruser", Authentication.Register).Methods("POST")
 	r.HandleFunc("/loginuser", Authentication.Login).Methods("POST")
